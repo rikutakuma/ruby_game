@@ -3,6 +3,8 @@ class Brave
 	attr_reader :name, :offence, :defence
 	attr_accessor :hp
 
+	SPECIAL_ATTACK_CONSTANT = 1.5
+
 	def initialize(**params)
 		@name = params[:name]
 		@hp = params[:hp]
@@ -12,12 +14,25 @@ class Brave
 
 	def attack(monster)
 		puts "#{@name}の攻撃"
-		damage = @offence - monster.defence
+
+		attack_num = rand(4)
+
+		if attack_num == 0
+			puts "必殺攻撃"
+			damage = calculate_special_attack - monster.defence
+		else
+			puts "通常攻撃"
+			damage = @offence - monster.defence
+		end
 
 		monster.hp -= damage
 
 		puts "#{monster.name}は#{damage}のダメージを受けた"
 		puts "#{monster.name}の残りHPは#{monster.hp}だ"
+	end
+
+	def calculate_special_attack
+		@offence * SPECIAL_ATTACK_CONSTANT
 	end
 
 end
