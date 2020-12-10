@@ -15,20 +15,44 @@ class Brave
 	def attack(monster)
 		puts "#{@name}の攻撃"
 
+		attack_type = decision_attack_type
+
+		damage = calculate_damage(target:monster, attack_type:attack_type)
+
+		cause_damage(target:monster, damage:damage)
+		puts "#{monster.name}の残りHPは#{monster.hp}だ"
+	end
+
+	private
+
+	def decision_attack_type
 		attack_num = rand(4)
 
 		if attack_num == 0
 			puts "必殺攻撃"
-			damage = calculate_special_attack - monster.defence
+			"special_attack"
 		else
 			puts "通常攻撃"
-			damage = @offence - monster.defence
+			"normal_attack"
 		end
+	end
 
-		monster.hp -= damage
+	def calculate_damage(**params)
+		target = params[:target]
+		attack_type = params[:attack_type]
+		if attack_type == "special_attack"
+			calculate_special_attack - target.defence
+		else
+			@offence - target.defence
+		end
+	end
 
-		puts "#{monster.name}は#{damage}のダメージを受けた"
-		puts "#{monster.name}の残りHPは#{monster.hp}だ"
+	def cause_damage(**params)
+		damage = params[:damage]
+		target = params[:target]
+		target.hp -= damage
+		target.hp = 0 if target.hp < 0
+		puts "#{target.name}は#{damage}のダメージを受けた"
 	end
 
 	def calculate_special_attack
@@ -62,16 +86,28 @@ class Monster
 
 		puts "#{@name}の攻撃"
 
-		damage = @offence - brave.defence
+		damage = calculate_damage(brave)
 
-		brave.hp -= damage
+		cause_damage(target: brave, damage: damage)
 
-		puts "#{brave.name}は#{damage}のダメージを受けた"
 		puts "#{brave.name}の残りHPは#{brave.hp}だ"
 
 	end
 
 	private
+
+	def calculate_damage(target)
+		@offence - target.defence
+	end
+
+	def cause_damage(**params)
+		damage = params[:damage]
+		target = params[:target]
+
+		target.hp -= damage
+		target.hp = 0 if target.hp < 0
+		puts "#{target.name}は#{damage}のダメージを受けた"
+	end
 
 	def transform
 		transform_name = "ドラゴン"
@@ -92,5 +128,26 @@ end
 brave = Brave.new(name: "テリー", hp: 500, offence: 150, defence: 100)
 monster = Monster.new(name: "スライム", hp: 250, offence: 200, defence: 100)
 
+loop do
 brave.attack(monster)
+	if monster.hp <= 0
+ 		break
+ 	end
+
 monster.attack(brave)
+	if brave.hp <= 0
+		break
+	end
+
+end
+
+
+
+
+
+
+
+
+
+
+
