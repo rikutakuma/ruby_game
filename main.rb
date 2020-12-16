@@ -1,9 +1,6 @@
-class Brave
-
-	attr_reader :name, :offence, :defence
-	attr_accessor :hp
-
-	SPECIAL_ATTACK_CONSTANT = 1.5
+class Character
+	attr_reader :offence, :defence
+	attr_accessor :hp, :name
 
 	def initialize(**params)
 		@name = params[:name]
@@ -11,6 +8,11 @@ class Brave
 		@offence = params[:offence]
 		@defence = params[:defence]
 	end
+end
+
+class Brave < Character
+
+	SPECIAL_ATTACK_CONSTANT = 1.5
 
 	def attack(monster)
 		puts "#{@name}の攻撃"
@@ -61,19 +63,18 @@ class Brave
 
 end
 
-class Monster
-
-	attr_reader :offence, :defence
-	attr_accessor :hp, :name
+class Monster < Character
 
 	POWER_UP_RATE = 1.5
 	CALC_HALF_HP = 0.5
 
 	def initialize(**params)
-		@name = params[:name]
-		@hp = params[:hp]
-		@offence = params[:offence]
-		@defence = params[:defence]
+	super(
+		name: params[:name],
+		hp: params[:hp],
+		offence: params[:offence],
+		defence: params[:defence]
+		)
 		@transform_flag = false
 		@trigger_of_transform = params[:hp] * CALC_HALF_HP
 	end
@@ -139,6 +140,18 @@ monster.attack(brave)
 		break
 	end
 
+end
+
+battle_result = brave.hp > 0
+
+if battle_result
+	exp = (monster.offence + monster.defence)*2
+	gold = (monster.offence + monster.defence)*3
+	puts "#{brave.name}はたたかいに勝った"
+	puts "#{exp}の経験値と#{gold}ゴールドを獲得した"
+else
+	puts "#{brave.name}はたたかいに負けた"
+	puts "目の前が真っ暗になった"
 end
 
 
