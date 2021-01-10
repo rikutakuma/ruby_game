@@ -1,46 +1,64 @@
+require './message_dialog'
+
 class GamesController
 
-EXP_CONSTANT = 2
-GOLD_CONSTANT = 3
+	include MessageDialog
 
-def battle(**params)
-	brave = params[:brave]
-	monster = params[:monster]
+	EXP_CONSTANT = 2
+	GOLD_CONSTANT = 3
 
-	loop do
-		brave.attack(monster)
-		break if battle_end?(monster)
-		monster.attack(brave)
-		break if battle_end?(brave)
+	def battle(**params)
+		build_characters(params)
+
+		loop do
+			@brave.attack(@monster)
+			break if battle_end?
+			@monster.attack(@brave)
+			break if battle_end?
+		end
+
+		battle_judgment
 	end
 
-	if battle_result(brave)
-		result = calculate_of_exp_and_gold(monster)
-		puts "#{brave.name}はたたかいに勝った"
-		puts "#{result[:exp]}の経験値と#{result[:gold]}ゴールドを獲得した"
-	else
-		puts "#{brave.name}はたたかいに負けた"
-		puts "目の前が真っ暗になった"
+	private
+
+	def build_characters(**params)
+		@brave = params[:brave]
+		@monster = params[:monster]
 	end
-end
 
-private
+	def battle_end?
+		@brave.hp <= 0 || @monster.hp <= 0
+	end
 
-def battle_end?(charaster)
-	character.hp <= 0
-end
+	def brave_win?
+		@brave.hp > 0
+	end
 
-def battle_result(brave)
-	brave.hp > 0
-end
+	def battle_judgment
+		#if brave_win?
+		result = calculate_of_exp_and_gold
+		# 	puts "#{@brave.name}はたたかいに勝った"
+		# 	puts "#{result[:exp]}の経験値と#{result[:gold]}ゴールドを獲得した"
+		#else
+		# 	puts "#{@brave.name}はたたかいに負けた"
+		# 	puts "目の前が真っ暗になった"
+		#end
+		end_message(result)
+	end
 
+	def calculate_of_exp_and_gold
+		if brave_win?
+			brave_win_flag = true
+			exp = (@monster.offence + @monster.defence)*EXP_CONSTANT
+			gold = (@monster.offence + @monster.defence)*GOLD_CONSTANT
+		else
+			brave_win_flag = false
+			exp = 0
+			gold = 0
+		end
+		{brave_win_flag: brave_win_flag, exp: exp, gold: gold}
 
-def calculate_of_exp_and_gold(monster)
-	exp = (monster.offence + monster.defence)*EXP_CONSTANT
-	gold = (monster.offence + monster.defence)*GOLD_CONSTANT
-	result = {exp: exp, gold: gold}
-
-	result
-end
+	end
 
 end
